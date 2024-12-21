@@ -2,7 +2,7 @@ from transformers import pipeline
 
 def create_chatbot():
     """Create a chatbot using a pre-trained language model."""
-    chatbot = pipeline("text-generation", model="gpt2")
+    chatbot = pipeline("text-generation", model="distilgpt2")
     return chatbot
 
 def answer_query(chatbot, query):
