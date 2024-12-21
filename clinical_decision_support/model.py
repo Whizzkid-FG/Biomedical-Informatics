@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-def load_data():
+def load_data() -> pd.DataFrame:
     """Load and preprocess patient data."""
     # Placeholder for loading data
     data = pd.DataFrame({
@@ -16,20 +16,24 @@ def load_data():
     })
     return data
 
-def train_model(data):
+def train_model(data: pd.DataFrame) -> RandomForestClassifier:
     """Train a model to predict disease likelihood."""
     X = data.drop('disease', axis=1)
     y = data['disease']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    model = RandomForestClassifier()
-    model.fit(X_train, y_train)
-    
-    predictions = model.predict(X_test)
-    accuracy = accuracy_score(y_test, predictions)
-    print(f"Model accuracy: {accuracy}")
-    
-    return model
+    try:
+        model = RandomForestClassifier()
+        model.fit(X_train, y_train)
+        
+        predictions = model.predict(X_test)
+        accuracy = accuracy_score(y_test, predictions)
+        print(f"Model accuracy: {accuracy}")
+        
+        return model
+    except Exception as e:
+        print(f"Error training model: {e}")
+        return None
 
 if __name__ == "__main__":
     data = load_data()
