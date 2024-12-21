@@ -1,9 +1,10 @@
 from transformers import pipeline, Pipeline
+from transformers.pipelines import TextGenerationPipeline
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
-def create_chatbot() -> Pipeline:
+def create_chatbot() -> TextGenerationPipeline:
     """Create a chatbot using a pre-trained language model."""
     chatbot = pipeline("text-generation", model="distilgpt2")
     return chatbot

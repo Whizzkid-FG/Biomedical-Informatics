@@ -1,4 +1,7 @@
 import numpy as np
+import logging
+
+logging.basicConfig(level=logging.INFO)
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -28,11 +31,11 @@ def train_model(data: pd.DataFrame) -> RandomForestClassifier:
         
         predictions = model.predict(X_test)
         accuracy = accuracy_score(y_test, predictions)
-        print(f"Model accuracy: {accuracy}")
+        logging.info(f"Model accuracy: {accuracy}")
         
         return model
     except Exception as e:
-        print(f"Error training model: {e}")
+        logging.error(f"Error training model: {e}")
         return None
 
 if __name__ == "__main__":
