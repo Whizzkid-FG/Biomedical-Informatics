@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
+import pandas as pd
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import torch
@@ -9,6 +10,18 @@ from models.disease_predictor import DiseasePredictor
 from models.medical_chatbot import MedicalChatbot
 from utils.data_processor import DataProcessor
 from utils.security import SecurityManager
+
+
+# Load the dataset
+data = pd.read_csv("dataset.csv")
+
+# Preprocess the dataset
+processor = DataProcessor()
+processed_data = processor.preprocess_data(data)
+
+# Split data into features and target
+X = processed_data
+y = data['disease_present']  # Target column
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
