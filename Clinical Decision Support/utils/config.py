@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+from utils.config import Config
+
 
 load_dotenv()
 
@@ -24,3 +26,6 @@ class Config:
     CATEGORICAL_FEATURES = ['gender', 'blood_type']
     NUMERICAL_FEATURES = ['age', 'temperature', 'blood_pressure', 'heart_rate']
     LAB_RESULTS = ['wbc_count', 'rbc_count', 'hemoglobin']
+
+    # Logging level configuration
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')  # Default to DEBUG if not set in .env

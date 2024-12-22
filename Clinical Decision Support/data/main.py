@@ -4,21 +4,27 @@ import pandas as pd
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from utils.data_processor import DataProcessor
 from models.disease_predictor import DiseasePredictor
 from models.medical_chatbot import MedicalChatbot
+from utils.data_processor import DataProcessor
 from utils.security import SecurityManager
+from utils.logger import setup_logger
 
-# Load and preprocess the dataset
-try:
-    data = pd.read_csv("C:\My Work Station\Biomedical Informatics\Clinical Decision Support\diabetes dataset\diabetes.csv")
-    processor = DataProcessor()
-    processed_data = processor.preprocess_data(data)
-    X = processed_data
-    y = data['disease_present']  # Target column
-except Exception as e:
-    raise RuntimeError(f"Error loading or processing dataset: {str(e)}")
+# Set up logger
+logger = setup_logger('main')
+
+# Load the dataset
+data = pd.read_csv("dataset.csv")
+
+# Preprocess the dataset
+processor = DataProcessor()
+processed_data = processor.preprocess_data(data)
+
+# Split data into features and target
+X = processed_data
+y = data['disease_present']  # Target column
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -29,16 +35,11 @@ medical_chatbot = MedicalChatbot()
 
 # Initialize disease predictor with saved model
 disease_predictor = DiseasePredictor(
-    input_size=processed_data.shape[1],  # Automatically set input size
+    input_size=64,  # Set based on preprocessed feature size
     hidden_layers=[128, 64, 32],
     num_classes=1
 )
-try:
-    disease_predictor.load_state_dict(torch.load('best_model.pt'))
-    disease_predictor.eval()  # Ensure the model is in evaluation mode
-except Exception as e:
-    raise RuntimeError(f"Error loading model: {str(e)}")
-
+disease_predictor.load_state_dict(torch.load('best_model.pt'))
 
 class PatientData(BaseModel):
     """Pydantic model for patient data validation."""
@@ -47,7 +48,6 @@ class PatientData(BaseModel):
     symptoms: List[str]
     lab_results: Dict[str, float]
 
-
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
     """Get current user from token."""
     try:
@@ -55,9 +55,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any
         if not user_data:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         return user_data
-    except Exception as e:
+    except ValueError as e:
+        logger.error(f"Error verifying token: {str(e)}")
         raise HTTPException(status_code=401, detail=str(e))
-
 
 @app.post("/predict_disease")
 async def predict_disease(
@@ -68,24 +68,25 @@ async def predict_disease(
     try:
         # Check access rights
         if not SecurityManager.has_access_rights(current_user['role'], 'doctor'):
+            logger.warning(f"Access denied for user {current_user['role']}")
             raise HTTPException(status_code=403, detail="Insufficient permissions")
-
+        
         # Preprocess patient data
         processed_data = data_processor.transform_single_patient(patient_data.dict())
-
+        
         # Get prediction
         with torch.no_grad():
             predictions, probabilities = disease_predictor.predict(
                 torch.FloatTensor(processed_data)
             )
-
+        
         return {
             "prediction": bool(predictions[0][0]),
             "probability": float(probabilities[0][0])
         }
     except Exception as e:
+        logger.error(f"Error in disease prediction: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.post("/ask_clinician")
 async def ask_clinician(
@@ -97,33 +98,38 @@ async def ask_clinician(
     try:
         # Check access rights
         if not SecurityManager.has_access_rights(current_user['role'], 'nurse'):
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
-
+            logger.warning(f"Access denied for user {current_user['role']}")
+            raise HTTPException(status_code=403, detail="Insufficient permission")
+        
         # Prepare context from patient data
         context = medical_chatbot.prepare_context(
             patient_data.dict(),
             medical_literature=[]  # Add relevant literature retrieval logic
         )
-
+        
         # Get response from chatbot
         response = await medical_chatbot.get_response(query, context)
 
-        return {"response": response}
+        return response
     except Exception as e:
+        logger.error(f"Error in clinician query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.post("/token")
 async def login(username: str, password: str):
     """Login endpoint to get access token."""
-    # In a real application, verify credentials against a database
-    if username == "doctor" and password == "password":
-        access_token = SecurityManager.create_access_token(
-            {"sub": username, "role": "doctor"}
-        )
-        return {"access_token": access_token, "token_type": "bearer"}
-    raise HTTPException(status_code=401, detail="Invalid credentials")
-
+    try:
+        # In a real application, verify credentials against a database
+        if username == "doctor" and password == "password":
+            access_token = SecurityManager.create_access_token(
+                {"sub": username, "role": "doctor"}
+            )
+            return {"access_token": access_token, "token_type": "bearer"}
+        else:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        logger.error(f"Error in login: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

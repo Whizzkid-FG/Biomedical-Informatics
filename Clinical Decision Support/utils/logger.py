@@ -1,33 +1,17 @@
-# File: utils/logger.py
 import logging
-from logging.handlers import RotatingFileHandler
-from config.config import Config
-import os
+from .config import Config
 
 def setup_logger(name: str) -> logging.Logger:
-    """Configure and return a logger instance with rotating file handler."""
-    # Create logs directory if it doesn't exist
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
-        
+    """Set up logger for the application."""
     logger = logging.getLogger(name)
-    logger.setLevel(Config.LOG_LEVEL)
+    logger.setLevel(Config.LOG_LEVEL)  # Use the log level from the config
     
-    # Create handlers
-    file_handler = RotatingFileHandler(
-        f'logs/{name}.log',
-        maxBytes=10485760,  # 10MB
-        backupCount=5
-    )
-    console_handler = logging.StreamHandler()
+    ch = logging.StreamHandler()  # Log to console
+    ch.setLevel(Config.LOG_LEVEL)
     
-    # Create formatters and add it to handlers
-    formatter = logging.Formatter(Config.LOG_FORMAT)
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
     
-    # Add handlers to the logger
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    logger.addHandler(ch)
     
     return logger
