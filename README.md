@@ -1,4 +1,4 @@
-## Clinical Decision Support System (CDSS)
+# Clinical Decision Support System (CDSS)
 Overview
 The Clinical Decision Support System (CDSS) is an advanced healthcare system designed to assist medical professionals by providing predictive analytics, personalized healthcare recommendations, and facilitating interactions with a medical chatbot. The system leverages machine learning models, particularly neural networks, to predict diseases based on patient data. Additionally, it integrates a chatbot to assist clinicians by answering medical queries, making it an invaluable tool in modern healthcare settings.
 
