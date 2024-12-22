@@ -4,8 +4,8 @@ The Clinical Decision Support System (CDSS) is an advanced healthcare system des
 
 This system aims to optimize the clinical workflow, enhance diagnostic accuracy, and improve patient outcomes by enabling clinicians to make better-informed decisions.
 
-### Features
-1. Disease Prediction
+## Features
+### 1. Disease Prediction
 Functionality: The disease prediction feature uses a trained machine learning model to predict the likelihood of a disease based on patient data, including age, gender, symptoms, and lab results.
 Endpoint: /predict_disease
 Input: Patient data such as age, gender, symptoms, and lab results.
