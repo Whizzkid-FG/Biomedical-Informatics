@@ -39,10 +39,10 @@ The system ensures that sensitive patient data is protected through secure authe
 ### 6. Scalability and Extensibility
 The system is built on modern, scalable frameworks (e.g., FastAPI) that allow easy integration with other healthcare systems. It can be extended to include new models, features, and more detailed patient data over time.
 ## Getting Started
-Prerequisites
+### Prerequisites
 Python 3.8 or higher
 Required libraries (installable via requirements.txt)
-Installation
+## Installation
 Clone the repository:
 
 bash
