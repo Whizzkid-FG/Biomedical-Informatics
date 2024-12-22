@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from jose import jwt
+from jose import jwt # type: ignore
 from datetime import datetime, timedelta
 from config.config import Config
 
