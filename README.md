@@ -41,6 +41,7 @@ The system is built on modern, scalable frameworks (e.g., FastAPI) that allow ea
 ## Getting Started
 ### Prerequisites
 Python 3.8 or higher
+
 Required libraries (installable via requirements.txt)
 ## Installation
 Clone the repository:
