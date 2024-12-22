@@ -11,34 +11,34 @@ Endpoint: /predict_disease
 Input: Patient data such as age, gender, symptoms, and lab results.
 Output: A prediction of whether a disease is present or not, with an associated probability.
 Access Control: Only authorized users (e.g., doctors) can access this feature.
-2. Clinician Query Assistance (Medical Chatbot)
+### 2. Clinician Query Assistance (Medical Chatbot)
 Functionality: A medical chatbot powered by NLP assists clinicians by answering patient-related medical queries. It processes patient data and provides insights based on the context, including possible diagnosis, treatment recommendations, and more.
 Endpoint: /ask_clinician
 Input: User query (question) along with relevant patient data.
 Output: A text response from the chatbot with medical insights.
 Access Control: Only authorized personnel (e.g., nurses, clinicians) can access this feature.
-3. User Authentication & Access Control
+### 3. User Authentication & Access Control
 Functionality: The system ensures that sensitive endpoints (e.g., disease prediction and clinician queries) are only accessible by authorized users. User roles (e.g., doctor, nurse) are verified using JWT (JSON Web Tokens).
 Endpoint: /token (login to get an access token)
 Access Control: The access is controlled via role-based authentication, ensuring that users only access the features they are authorized for.
-4. Data Processing & Model Integration
+### 4. Data Processing & Model Integration
 Functionality: The system preprocesses raw data (e.g., patient information) to ensure it is in a format suitable for the machine learning model. It uses predefined feature sets for prediction and integrates with a deep learning model for disease prediction.
 Input: Raw patient data.
 Output: Preprocessed data ready for model inference.
-Advantages
-1. Improved Clinical Efficiency
+## Advantages
+### 1. Improved Clinical Efficiency
 By automating disease predictions and assisting with clinician queries, this system significantly reduces the time spent on manual tasks. Doctors and nurses can focus more on patient care rather than sifting through complex data.
-2. Accurate Diagnostics
+### 2. Accurate Diagnostics
 Leveraging machine learning models, the system provides accurate predictions, reducing the chances of human error in diagnosing diseases. The model continuously learns and improves over time with new data.
-3. Personalized Care
+### 3. Personalized Care
 The system uses patient-specific data (e.g., age, gender, symptoms) to provide personalized medical insights. This ensures that patients receive the most relevant treatment recommendations based on their unique conditions.
-4. Real-time Assistance
+### 4. Real-time Assistance
 The medical chatbot offers real-time assistance for clinicians, helping them make informed decisions quickly. The system can respond to questions related to the patient’s medical history, symptoms, and other relevant factors.
-5. Security and Compliance
+### 5. Security and Compliance
 The system ensures that sensitive patient data is protected through secure authentication and access control mechanisms. Only authorized personnel can access critical information, ensuring compliance with healthcare regulations (e.g., HIPAA).
-6. Scalability and Extensibility
+### 6. Scalability and Extensibility
 The system is built on modern, scalable frameworks (e.g., FastAPI) that allow easy integration with other healthcare systems. It can be extended to include new models, features, and more detailed patient data over time.
-Getting Started
+## Getting Started
 Prerequisites
 Python 3.8 or higher
 Required libraries (installable via requirements.txt)
