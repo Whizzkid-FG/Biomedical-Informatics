@@ -1,57 +1,39 @@
-# File: utils/security.py
 from typing import Dict, Any
-import jwt
-from cryptography.fernet import Fernet
+from jose import jwt
 from datetime import datetime, timedelta
 from config.config import Config
 
 class SecurityManager:
-    """Handles security operations including encryption, authentication, and authorization."""
+    """Handles security operations including authentication and authorization."""
     
-    def __init__(self):
-        self.fernet = Fernet(Config.ENCRYPTION_KEY.encode())
+    @staticmethod
+    def create_access_token(
+        user_data: Dict[str, Any],
+        expires_delta: timedelta = timedelta(hours=24)
+    ) -> str:
+        """Create JWT access token."""
+        to_encode = user_data.copy()
+        expire = datetime.utcnow() + expires_delta
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, Config.JWT_SECRET, algorithm="HS256")
     
-    def encrypt_patient_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Encrypt sensitive patient data fields."""
-        sensitive_fields = ['ssn', 'patient_id', 'contact_info']
-        encrypted_data = data.copy()
-        
-        for field in sensitive_fields:
-            if field in encrypted_data:
-                encrypted_data[field] = self.fernet.encrypt(
-                    str(encrypted_data[field]).encode()
-                ).decode()
-        
-        return encrypted_data
-    
-    def decrypt_patient_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Decrypt sensitive patient data fields."""
-        encrypted_fields = ['ssn', 'patient_id', 'contact_info']
-        decrypted_data = data.copy()
-        
-        for field in encrypted_fields:
-            if field in decrypted_data:
-                decrypted_data[field] = self.fernet.decrypt(
-                    decrypted_data[field].encode()
-                ).decode()
-        
-        return decrypted_data
-    
-    def generate_access_token(self, user_id: str, role: str) -> str:
-        """Generate JWT access token for API authentication."""
-        payload = {
-            'user_id': user_id,
-            'role': role,
-            'exp': datetime.utcnow() + timedelta(hours=24)
-        }
-        return jwt.encode(payload, Config.JWT_SECRET, algorithm='HS256')
-    
-    def verify_access_token(self, token: str) -> Dict[str, Any]:
-        """Verify and decode JWT access token."""
+    @staticmethod
+    def verify_token(token: str) -> Dict[str, Any]:
+        """Verify and decode JWT token."""
         try:
-            payload = jwt.decode(token, Config.JWT_SECRET, algorithms=['HS256'])
+            payload = jwt.decode(token, Config.JWT_SECRET, algorithms=["HS256"])
             return payload
         except jwt.ExpiredSignatureError:
             raise ValueError("Token has expired")
-        except jwt.InvalidTokenError:
+        except jwt.JWTError:
             raise ValueError("Invalid token")
+    
+    @staticmethod
+    def has_access_rights(user_role: str, required_role: str) -> bool:
+        """Check if user has required access rights."""
+        role_hierarchy = {
+            'admin': 3,
+            'doctor': 2,
+            'nurse': 1
+        }
+        return role_hierarchy.get(user_role, 0) >= role_hierarchy.get(required_role, 0)
